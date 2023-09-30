@@ -84,7 +84,11 @@ class Converter
         target_note_id = link_target.sub('id:', '')
         target_note = @notes[target_note_id]
 
-        "[[#{target_note.title}]]"
+        if target_note.nil?
+          "[Note not found: #{link_text}](#{link_target})"
+        else
+          "[[#{target_note.title}]]"
+        end
       else
         "[#{link_text}](#{link_target})"
       end
