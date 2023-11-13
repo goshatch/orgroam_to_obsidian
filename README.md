@@ -11,13 +11,11 @@ I hacked this together in a couple of evenings because I wanted to see if it mad
 
 ## Running the conversion
 
+## Preparation
+
 ```sh
-$ git clone https://github.com/goshatch/orgroam_to_obsidian
-$ cd orgroam_to_obsidian
 $ cp ~/.emacs.d/.local/cache/org-roam.db input/
 $ cp -R ~/org/roam input/
-$ bundle install
-$ ./convert.rb
 ```
 
 The locations of `org-roam.db` and the `roam` directory above are provided as examples only. You can find the actual locations on your system by inspecting these variables in Emacs:
@@ -27,7 +25,25 @@ The locations of `org-roam.db` and the `roam` directory above are provided as ex
 
 Make sure to COPY these to your `input` directory, so that you have a backup in case things go wrong.
 
-After running `convert.rb`, the generated markdown files will be under the `output` directory.
+Next, you can either run it locally (you'll need Ruby and Pandoc) or via Docker.
+
+### Locally
+
+```sh
+$ git clone https://github.com/goshatch/orgroam_to_obsidian
+$ cd orgroam_to_obsidian
+$ bundle install
+$ ./convert.rb
+```
+
+### Docker
+
+```sh
+$ docker build -f $PWD/Dockerfile -t orgroam_to_obsidian:0.0.1 .
+$ docker run -it --rm -v $PWD:/opt/orgroam-to-obsidian orgroam_to_obsidian:0.0.1 
+```
+
+After the conversion is complete, the generated markdown files will be under the `output` directory.
 
 ## Help and contributing
 
