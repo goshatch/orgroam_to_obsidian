@@ -40,10 +40,11 @@ class Note
 
   def sanitize(row)
     r = row.map do |k, v|
+      key = k.to_s.to_sym
       if v.is_a? String
-        [k, v.gsub("\"", '')]
+        [key, v.gsub('\"', '')]
       else
-        [k, v]
+        [key, v]
       end
     end
     r.to_h
