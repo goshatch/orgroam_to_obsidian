@@ -42,7 +42,7 @@ class Note
     r = row.map do |k, v|
       key = k.to_s.to_sym
       if v.is_a? String
-        [key, v.gsub('\"', '')]
+        [key, v.gsub('"', '')]
       else
         [key, v]
       end
