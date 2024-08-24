@@ -4,6 +4,7 @@ require 'sqlite3'
 require 'pathname'
 require 'pandoc-ruby'
 require 'pry'
+require 'shellwords'
 
 DB_PATH = './input/org-roam.db'.freeze
 
@@ -35,7 +36,7 @@ class Note
   private
 
   def input_file_to_md
-    PandocRuby.new([(Regexp.escape input_file)], from: 'org', wrap: 'none').to_gfm
+    PandocRuby.new([(Shellwords.escape input_file)], from: 'org', wrap: 'none').to_gfm
   end
 
   def sanitize(row)
