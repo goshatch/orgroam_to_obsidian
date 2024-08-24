@@ -14,7 +14,6 @@ class Note
   def initialize(row)
     r = sanitize(row)
     @row = OpenStruct.new(r)
-    @content = input_file_to_md
   end
 
   def id
@@ -31,6 +30,10 @@ class Note
 
   def filename
     "#{title}.md".gsub(%r{[\x00\/\\:\*\?\"<>\|]}, '-')
+  end
+
+  def content
+    input_file_to_md
   end
 
   private
@@ -60,6 +63,12 @@ class Converter
     results = db.execute('SELECT * FROM nodes ORDER BY id DESC')
     results.each do |result|
       note = Note.new(result)
+      if File.extname(note.input_file) != '.org'
+        # Skipping encrypted notes
+        puts "Skipping (unsupported file extension): #{note.title}"
+        next
+      end
+
       puts "Loading: #{note.title}"
       @notes[note.id] = note
     end
