@@ -47,7 +47,7 @@ class Note
   private
 
   def input_file_to_md
-    PandocRuby.new([(Shellwords.escape input_file)], from: 'org', wrap: 'none').to_gfm
+    PandocRuby.new([(Shellwords.escape input_file)], :standalone, from: 'org', wrap: 'none').to_gfm
   end
 
   def sanitize(row)
