@@ -20,8 +20,12 @@ class Note
     @row.id
   end
 
+  def roam_file
+    @roam_file ||= "#{@row.file.partition('roam/').last}"
+  end
+
   def input_file
-    @input_file ||= "input/roam/#{@row.file.partition('roam/').last}"
+    @input_file ||= "input/roam/#{roam_file}"
   end
 
   def title
@@ -32,8 +36,8 @@ class Note
     @row.title
   end
 
-  def filename
-    "#{title}.md"
+  def output_file
+    Pathname(@roam_file).dirname + "#{title}.md"
   end
 
   def content
@@ -87,7 +91,10 @@ class Converter
   def convert_and_write_note(note)
     puts "Converting: #{note.input_title}"
     content = convert_links(note)
-    File.write("output/#{note.filename}", content)
+
+    out_path = Pathname("output/#{note.output_file}")
+    out_path.dirname.mkpath
+    out_path.write(content)
   end
 
   def convert_links(note)
