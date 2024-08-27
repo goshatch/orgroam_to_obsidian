@@ -25,11 +25,15 @@ class Note
   end
 
   def title
+    @row.title.gsub(%r{[\x00\/\\:\*\?\"<>\|]}, '-')
+  end
+
+  def input_title
     @row.title
   end
 
   def filename
-    "#{title}.md".gsub(%r{[\x00\/\\:\*\?\"<>\|]}, '-')
+    "#{title}.md"
   end
 
   def content
@@ -65,11 +69,11 @@ class Converter
       note = Note.new(result)
       if File.extname(note.input_file) != '.org'
         # Skipping encrypted notes
-        puts "Skipping (unsupported file extension): #{note.title}"
+        puts "Skipping (unsupported file extension): #{note.input_title}"
         next
       end
 
-      puts "Loading: #{note.title}"
+      puts "Loading: #{note.input_title}"
       @notes[note.id] = note
     end
     puts '✅ Done loading.'
@@ -81,7 +85,7 @@ class Converter
   end
 
   def convert_and_write_note(note)
-    puts "Converting: #{note.title}"
+    puts "Converting: #{note.input_title}"
     content = convert_links(note)
     File.write("output/#{note.filename}", content)
   end
