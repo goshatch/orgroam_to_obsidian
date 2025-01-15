@@ -3,14 +3,17 @@ GEM
   specs:
     coderay (1.1.3)
     method_source (1.0.0)
+    mini_portile2 (2.8.8)
     pandoc-ruby (2.1.7)
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    sqlite3 (1.6.0-arm64-darwin)
+    sqlite3 (1.6.0)
+      mini_portile2 (~> 2.8.0)
 
 PLATFORMS
   arm64-darwin-21
+  arm64-darwin-24
 
 DEPENDENCIES
   pandoc-ruby

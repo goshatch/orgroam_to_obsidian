@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'optparse'
+require 'ostruct'
 require 'sqlite3'
 require 'pathname'
 require 'pandoc-ruby'
@@ -11,9 +13,10 @@ DB_PATH = './input/org-roam.db'.freeze
 class Note
   attr_reader :content
 
-  def initialize(row)
+  def initialize(row, debug: false)
     r = sanitize(row)
     @row = OpenStruct.new(r)
+    @debug = debug
   end
 
   def id
@@ -64,16 +67,26 @@ class Note
 end
 
 class Converter
-  def initialize
+  def initialize(debug: false)
+    @debug = debug
     @notes = {}
     db = SQLite3::Database.open(DB_PATH)
     db.results_as_hash = true
     results = db.execute('SELECT * FROM nodes ORDER BY id DESC')
+    if @debug
+      puts "Warn: no nodes found in database" if results.length == 0
+    end
     results.each do |result|
       note = Note.new(result)
       if File.extname(note.input_file) != '.org'
         # Skipping encrypted notes
         puts "Skipping (unsupported file extension): #{note.input_title}"
+        if @debug
+          puts "\tinput file: #{note.input_file}"
+          puts "\tfile relative to roam dir: #{note.roam_file}"
+          puts "\textension: #{File.extname(note.input_file)}"
+        end
+
         next
       end
 
@@ -89,12 +102,18 @@ class Converter
   end
 
   def convert_and_write_note(note)
-    puts "Converting: #{note.input_title}"
-    content = convert_links(note)
+    begin
+      puts "Converting: #{note.input_title}"
+      content = convert_links(note)
 
-    out_path = Pathname("output/#{note.output_file}")
-    out_path.dirname.mkpath
-    out_path.write(content)
+      out_path = Pathname("output/#{note.output_file}")
+      out_path.dirname.mkpath
+      out_path.write(content)
+    rescue StandardError => e
+      puts "Failed to convert and write note: #{note.input_title}"
+      puts "\tError: #{e.message}"
+      puts e.backtrace if @debug
+    end
   end
 
   def convert_links(note)
@@ -118,4 +137,14 @@ class Converter
   end
 end
 
-Converter.new.convert
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: convert.rb [options]"
+
+  opts.on('--debug', 'Run with debug output') do
+    options[:debug] = true
+    puts "Running with DEBUG output"
+  end
+end.parse!
+
+Converter.new(debug: options[:debug]).convert
