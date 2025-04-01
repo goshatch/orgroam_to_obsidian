@@ -11,12 +11,11 @@ require 'shellwords'
 DB_PATH = './input/org-roam.db'.freeze
 
 class Note
-  attr_reader :content
-
-  def initialize(row, debug: false)
+  def initialize(row, debug: false, roam_root: nil)
     r = sanitize(row)
     @row = OpenStruct.new(r)
     @debug = debug
+    @roam_root = roam_root || File.expand_path("~/org-roam")
   end
 
   def id
@@ -24,7 +23,7 @@ class Note
   end
 
   def roam_file
-    @roam_file ||= "#{@row.file.partition('roam/').last}"
+    @roam_file ||= "#{@row.file.partition(@roam_root).last}"
   end
 
   def input_file
@@ -67,7 +66,7 @@ class Note
 end
 
 class Converter
-  def initialize(debug: false)
+  def initialize(debug: false, roam_root: nil)
     @debug = debug
     @notes = {}
     db = SQLite3::Database.open(DB_PATH)
@@ -77,7 +76,7 @@ class Converter
       puts "Warn: no nodes found in database" if results.length == 0
     end
     results.each do |result|
-      note = Note.new(result)
+      note = Note.new(result, debug: debug, roam_root: roam_root)
       if File.extname(note.input_file) != '.org'
         # Skipping encrypted notes
         puts "Skipping (unsupported file extension): #{note.input_title}"
@@ -145,6 +144,14 @@ OptionParser.new do |opts|
     options[:debug] = true
     puts "Running with DEBUG output"
   end
+  
+  opts.on('--roam-root PATH', 'Path to actual org-roam directory') do |path|
+    unless Dir.exist?(path)
+      puts "Error: The specified org-root path '#{path}' does not exist or is not a directory"
+      exit 1
+    end
+    options[:roam_root] = path
+  end
 end.parse!
 
-Converter.new(debug: options[:debug]).convert
+Converter.new(debug: options[:debug], roam_root: options[:roam_root]).convert

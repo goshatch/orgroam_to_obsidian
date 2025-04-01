@@ -15,7 +15,7 @@ I hacked this together in a couple of evenings because I wanted to see if it mad
 
 ```sh
 $ cp ~/.emacs.d/.local/cache/org-roam.db input/
-$ cp -R ~/org/roam input/
+$ cp -R ~/org-roam input/
 ```
 
 The locations of `org-roam.db` and the `roam` directory above are provided as examples only. You can find the actual locations on your system by inspecting these variables in Emacs:
@@ -36,6 +36,14 @@ $ bundle install
 $ ./convert.rb
 ```
 
+#### Specifying the root org-roam directory
+
+The script needs to know your root org-roam directory in order to correctly figure out the file names for each note. By default, it will use the org-roam default, which is `~/org-roam`. If you have changed this, get the value from emacs by inspecting the `org-roam-directory` variable, and pass it to the script with a command line flag:
+
+```sh
+$ ./convert.rb --roam-root "~/org/roam"
+```
+
 ### Docker
 
 ```sh
@@ -48,5 +56,7 @@ After the conversion is complete, the generated markdown files will be under the
 ## Help and contributing
 
 If you need any help with this, please feel free to reach out to me [on Mastodon](https://merveilles.town/@gosha), or to submit an issue to the repository.
+
+If you encounter an issue, please run the script with the `--debug` flag for additional debug info, and include this in the issue.
 
 Pull requests with improvements are very welcome.
