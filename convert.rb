@@ -15,7 +15,7 @@ class Note
     r = sanitize(row)
     @row = OpenStruct.new(r)
     @debug = debug
-    @roam_root = roam_root || File.expand_path("~/org-roam")
+    @roam_root = roam_root || File.realpath(File.expand_path("~/org-roam"))
   end
 
   def id
@@ -146,11 +146,12 @@ OptionParser.new do |opts|
   end
   
   opts.on('--roam-root PATH', 'Path to actual org-roam directory') do |path|
-    unless Dir.exist?(path)
-      puts "Error: The specified org-root path '#{path}' does not exist or is not a directory"
+    full_path = File.realpath(File.expand_path(path))
+    unless Dir.exist?(full_path)
+      puts "Error: The specified org-root path '#{full_path}' does not exist or is not a directory"
       exit 1
     end
-    options[:roam_root] = path
+    options[:roam_root] = full_path
   end
 end.parse!
 
