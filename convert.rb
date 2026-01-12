@@ -27,7 +27,7 @@ class Note
   end
 
   def input_file
-    @input_file ||= "input/roam/#{roam_file}"
+    @input_file ||= File.join(@roam_root, roam_file)
   end
 
   def title
